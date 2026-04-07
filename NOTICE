@@ -1,0 +1,26 @@
+checker-zonemaster
+Copyright (c) 2026 The happyDomain Authors
+
+This product is licensed under the MIT License (see LICENSE).
+
+-------------------------------------------------------------------------------
+Third-party notices
+-------------------------------------------------------------------------------
+
+This product includes software developed as part of the checker-sdk-go
+project (https://git.happydns.org/happyDomain/checker-sdk-go), licensed
+under the Apache License, Version 2.0:
+
+    checker-sdk-go
+    Copyright 2020-2026 The happyDomain Authors
+
+    This product includes software developed as part of the happyDomain
+    project (https://happydomain.org).
+
+    Portions of this code were originally written for the happyDomain
+    server (licensed under AGPL-3.0 and a commercial license) and are
+    made available there under the Apache License, Version 2.0 to enable
+    a permissively licensed ecosystem of checker plugins.
+
+You may obtain a copy of the Apache License 2.0 at:
+    http://www.apache.org/licenses/LICENSE-2.0
