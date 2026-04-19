@@ -6,6 +6,8 @@ import (
 	"html/template"
 	"sort"
 	"strings"
+
+	sdk "git.happydns.org/checker-sdk-go/checker"
 )
 
 // ── HTML report ───────────────────────────────────────────────────────────────
@@ -197,9 +199,9 @@ details[open] > summary::before { transform: rotate(90deg); }
 )
 
 // GetHTMLReport implements sdk.CheckerHTMLReporter.
-func (p *zonemasterProvider) GetHTMLReport(raw json.RawMessage) (string, error) {
+func (p *zonemasterProvider) GetHTMLReport(ctx sdk.ReportContext) (string, error) {
 	var data ZonemasterData
-	if err := json.Unmarshal(raw, &data); err != nil {
+	if err := json.Unmarshal(ctx.Data(), &data); err != nil {
 		return "", fmt.Errorf("failed to unmarshal zonemaster results: %w", err)
 	}
 
