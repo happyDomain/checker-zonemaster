@@ -44,14 +44,14 @@ func (r *zonemasterRule) ValidateOptions(opts sdk.CheckerOptions) error {
 	return nil
 }
 
-func (r *zonemasterRule) Evaluate(ctx context.Context, obs sdk.ObservationGetter, opts sdk.CheckerOptions) sdk.CheckState {
+func (r *zonemasterRule) Evaluate(ctx context.Context, obs sdk.ObservationGetter, opts sdk.CheckerOptions) []sdk.CheckState {
 	var data ZonemasterData
 	if err := obs.Get(ctx, ObservationKeyZonemaster, &data); err != nil {
-		return sdk.CheckState{
+		return []sdk.CheckState{{
 			Status:  sdk.StatusError,
 			Message: fmt.Sprintf("Failed to get Zonemaster data: %v", err),
 			Code:    "zonemaster_error",
-		}
+		}}
 	}
 
 	var errorCount, warningCount int
@@ -86,27 +86,27 @@ func (r *zonemasterRule) Evaluate(ctx context.Context, obs sdk.ObservationGetter
 			}
 			statusLine += ": " + strings.Join(criticalMsgs[:n], "; ")
 		}
-		return sdk.CheckState{
+		return []sdk.CheckState{{
 			Status:  sdk.StatusCrit,
 			Message: statusLine,
 			Code:    "zonemaster_errors",
 			Meta:    meta,
-		}
+		}}
 	}
 
 	if warningCount > 0 {
-		return sdk.CheckState{
+		return []sdk.CheckState{{
 			Status:  sdk.StatusWarn,
 			Message: fmt.Sprintf("%d warning(s) found", warningCount),
 			Code:    "zonemaster_warnings",
 			Meta:    meta,
-		}
+		}}
 	}
 
-	return sdk.CheckState{
+	return []sdk.CheckState{{
 		Status:  sdk.StatusOK,
 		Message: fmt.Sprintf("All checks passed (%d checks)", len(data.Results)),
 		Code:    "zonemaster_ok",
 		Meta:    meta,
-	}
+	}}
 }
