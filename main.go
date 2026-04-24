@@ -4,8 +4,8 @@ import (
 	"flag"
 	"log"
 
+	"git.happydns.org/checker-sdk-go/checker/server"
 	zonemaster "git.happydns.org/checker-zonemaster/checker"
-	sdk "git.happydns.org/checker-sdk-go/checker"
 )
 
 // Version is the standalone binary's version. It defaults to "custom-build"
@@ -23,8 +23,8 @@ func main() {
 	// CheckerDefinition.Version.
 	zonemaster.Version = Version
 
-	server := sdk.NewServer(zonemaster.Provider())
-	if err := server.ListenAndServe(*listenAddr); err != nil {
+	srv := server.New(zonemaster.Provider())
+	if err := srv.ListenAndServe(*listenAddr); err != nil {
 		log.Fatalf("server error: %v", err)
 	}
 }

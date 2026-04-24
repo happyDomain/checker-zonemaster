@@ -71,7 +71,7 @@ var zonemasterHTMLTemplate = template.Must(
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zonemaster{{if .Domain}} — {{.Domain}}{{end}}</title>
+<title>Zonemaster{{if .Domain}}, {{.Domain}}{{end}}</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; }
 :root {
@@ -157,7 +157,7 @@ details[open] > summary::before { transform: rotate(90deg); }
 <body>
 
 <div class="hd">
-  <h1>Zonemaster{{if .Domain}} — <code>{{.Domain}}</code>{{end}}</h1>
+  <h1>Zonemaster{{if .Domain}}, <code>{{.Domain}}</code>{{end}}</h1>
   <div class="meta">
     {{- if .CreatedAt}}Run at {{.CreatedAt}}{{end -}}
     {{- if and .CreatedAt .HashID}} &middot; {{end -}}
