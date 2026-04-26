@@ -14,8 +14,3 @@ type zonemasterProvider struct{}
 func (p *zonemasterProvider) Key() sdk.ObservationKey {
 	return ObservationKeyZonemaster
 }
-
-// Definition implements sdk.CheckerDefinitionProvider.
-func (p *zonemasterProvider) Definition() *sdk.CheckerDefinition {
-	return Definition()
-}

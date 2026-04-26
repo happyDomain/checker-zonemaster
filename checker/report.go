@@ -15,13 +15,14 @@ import (
 // zmLevelDisplayOrder defines the severity order used for sorting and display.
 var zmLevelDisplayOrder = []string{"CRITICAL", "ERROR", "WARNING", "NOTICE", "INFO", "DEBUG"}
 
-var zmLevelRank = func() map[string]int {
-	m := make(map[string]int, len(zmLevelDisplayOrder))
-	for i, l := range zmLevelDisplayOrder {
-		m[l] = len(zmLevelDisplayOrder) - i
-	}
-	return m
-}()
+var zmLevelRank = map[string]int{
+	"CRITICAL": 6,
+	"ERROR":    5,
+	"WARNING":  4,
+	"NOTICE":   3,
+	"INFO":     2,
+	"DEBUG":    1,
+}
 
 type zmLevelCount struct {
 	Level string
@@ -50,7 +51,7 @@ var zonemasterHTMLTemplate = template.Must(
 	template.New("zonemaster").
 		Funcs(template.FuncMap{
 			"badgeClass": func(level string) string {
-				switch strings.ToUpper(level) {
+				switch normLevel(level) {
 				case "CRITICAL":
 					return "badge-critical"
 				case "ERROR":
@@ -222,7 +223,7 @@ func (p *zonemasterProvider) GetHTMLReport(ctx sdk.ReportContext) (string, error
 		rs := moduleMap[name]
 		counts := map[string]int{}
 		for _, r := range rs {
-			lvl := strings.ToUpper(r.Level)
+			lvl := normLevel(r.Level)
 			counts[lvl]++
 			totalCounts[lvl]++
 		}

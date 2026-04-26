@@ -30,32 +30,6 @@ func Rules() []sdk.CheckRule {
 	}
 }
 
-// Rule returns the legacy single-rule view of the Zonemaster checker.
-//
-// Deprecated: use Rules() for per-category CheckRules. This wrapper is kept
-// so existing callers that only expect a single rule keep compiling.
-func Rule() sdk.CheckRule { return &legacyRule{} }
-
-type legacyRule struct{}
-
-func (r *legacyRule) Name() string { return "zonemaster" }
-
-func (r *legacyRule) Description() string {
-	return "Runs Zonemaster DNS validation tests against the zone (aggregate view)."
-}
-
-func (r *legacyRule) ValidateOptions(opts sdk.CheckerOptions) error {
-	return validateZonemasterOptions(opts)
-}
-
-func (r *legacyRule) Evaluate(ctx context.Context, obs sdk.ObservationGetter, _ sdk.CheckerOptions) []sdk.CheckState {
-	data, errSt := loadZonemasterData(ctx, obs)
-	if errSt != nil {
-		return []sdk.CheckState{*errSt}
-	}
-	return []sdk.CheckState{summarizeAll(data)}
-}
-
 // ── shared helpers ────────────────────────────────────────────────────────────
 
 // validateZonemasterOptions validates the options accepted by the Zonemaster
@@ -96,18 +70,23 @@ func loadZonemasterData(ctx context.Context, obs sdk.ObservationGetter) (*Zonema
 	return &data, nil
 }
 
+// normLevel returns the canonical (upper-case) form of a Zonemaster severity
+// string. Use this anywhere a severity needs to be compared, looked up or
+// keyed so the canonical list stays in one place.
+func normLevel(level string) string {
+	return strings.ToUpper(level)
+}
+
 // levelToStatus maps a Zonemaster-returned severity to happyDomain's status.
 // Zonemaster's own judgement is treated as raw input; this is happyDomain's
 // own mapping onto the SDK status enum.
 func levelToStatus(level string) sdk.Status {
-	switch strings.ToUpper(level) {
+	switch normLevel(level) {
 	case "CRITICAL", "ERROR":
 		return sdk.StatusCrit
 	case "WARNING":
 		return sdk.StatusWarn
-	case "NOTICE", "INFO":
-		return sdk.StatusInfo
-	case "DEBUG":
+	case "NOTICE", "INFO", "DEBUG":
 		return sdk.StatusInfo
 	default:
 		return sdk.StatusUnknown
@@ -154,6 +133,10 @@ type categoryRule struct {
 func (r *categoryRule) Name() string        { return r.name }
 func (r *categoryRule) Description() string { return r.description }
 
+func (r *categoryRule) ValidateOptions(opts sdk.CheckerOptions) error {
+	return validateZonemasterOptions(opts)
+}
+
 func (r *categoryRule) Evaluate(ctx context.Context, obs sdk.ObservationGetter, _ sdk.CheckerOptions) []sdk.CheckState {
 	data, errSt := loadZonemasterData(ctx, obs)
 	if errSt != nil {
@@ -176,7 +159,7 @@ func (r *categoryRule) Evaluate(ctx context.Context, obs sdk.ObservationGetter, 
 	)
 
 	for _, res := range matched {
-		lvl := strings.ToUpper(res.Level)
+		lvl := normLevel(res.Level)
 		st := levelToStatus(lvl)
 		worst = worstStatus(worst, st)
 
@@ -251,62 +234,4 @@ func filterByModules(results []ZonemasterTestResult, modules []string) []Zonemas
 		}
 	}
 	return out
-}
-
-// summarizeAll produces the legacy monolithic summary state. Preserved so
-// Rule() keeps behaving as before for callers that still use it.
-func summarizeAll(data *ZonemasterData) sdk.CheckState {
-	var errorCount, warningCount int
-	var criticalMsgs []string
-
-	for _, res := range data.Results {
-		switch strings.ToUpper(res.Level) {
-		case "CRITICAL", "ERROR":
-			errorCount++
-			if len(criticalMsgs) < 5 {
-				criticalMsgs = append(criticalMsgs, res.Message)
-			}
-		case "WARNING":
-			warningCount++
-		}
-	}
-
-	meta := map[string]any{
-		"errorCount":   errorCount,
-		"warningCount": warningCount,
-		"totalChecks":  len(data.Results),
-		"hashId":       data.HashID,
-		"createdAt":    data.CreatedAt,
-	}
-
-	if errorCount > 0 {
-		statusLine := fmt.Sprintf("%d error(s), %d warning(s) found", errorCount, warningCount)
-		if len(criticalMsgs) > 0 {
-			n := 2
-			if len(criticalMsgs) < n {
-				n = len(criticalMsgs)
-			}
-			statusLine += ": " + strings.Join(criticalMsgs[:n], "; ")
-		}
-		return sdk.CheckState{
-			Status:  sdk.StatusCrit,
-			Message: statusLine,
-			Code:    "zonemaster_errors",
-			Meta:    meta,
-		}
-	}
-	if warningCount > 0 {
-		return sdk.CheckState{
-			Status:  sdk.StatusWarn,
-			Message: fmt.Sprintf("%d warning(s) found", warningCount),
-			Code:    "zonemaster_warnings",
-			Meta:    meta,
-		}
-	}
-	return sdk.CheckState{
-		Status:  sdk.StatusOK,
-		Message: fmt.Sprintf("All checks passed (%d checks)", len(data.Results)),
-		Code:    "zonemaster_ok",
-		Meta:    meta,
-	}
 }

@@ -55,6 +55,20 @@ the running checker-zonemaster server (e.g.,
 `http://checker-zonemaster:8080`). happyDomain will delegate observation
 collection to this endpoint.
 
+### Deployment
+
+The `/collect` endpoint has no built-in authentication and will issue
+JSON-RPC calls to whatever Zonemaster API URL is configured via the
+`zonemasterAPIURL` admin option (defaulting to the official public API
+at `https://zonemaster.net/api`). Operators should point this option
+only at trusted Zonemaster instances; pointing it at an untrusted host
+turns the checker into an SSRF vector, since responses are parsed and
+surfaced back to the caller. The checker itself is meant to run on a
+trusted network, reachable only by the happyDomain instance that drives
+it. Restrict access via a reverse proxy with authentication, a network
+ACL, or by binding the listener to a private interface; do not expose
+it directly to the public internet.
+
 ## Options
 
 | Scope     | Id                 | Description                                          |

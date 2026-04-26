@@ -5,8 +5,8 @@
 package main
 
 import (
-	zonemaster "git.happydns.org/checker-zonemaster/checker"
 	sdk "git.happydns.org/checker-sdk-go/checker"
+	zonemaster "git.happydns.org/checker-zonemaster/checker"
 )
 
 // Version is the plugin's version. It defaults to "custom-build" and is
@@ -20,5 +20,6 @@ var Version = "custom-build"
 // that the host will register in its global registries.
 func NewCheckerPlugin() (*sdk.CheckerDefinition, sdk.ObservationProvider, error) {
 	zonemaster.Version = Version
-	return zonemaster.Definition(), zonemaster.Provider(), nil
+	prvd := zonemaster.Provider()
+	return prvd.(sdk.CheckerDefinitionProvider).Definition(), prvd, nil
 }

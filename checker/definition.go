@@ -17,7 +17,7 @@ import (
 var Version = "built-in"
 
 // Definition returns the CheckerDefinition for the zonemaster checker.
-func Definition() *sdk.CheckerDefinition {
+func (p *zonemasterProvider) Definition() *sdk.CheckerDefinition {
 	return &sdk.CheckerDefinition{
 		ID:      "zonemaster",
 		Name:    "Zonemaster",
@@ -75,13 +75,11 @@ func Definition() *sdk.CheckerDefinition {
 				},
 			},
 		},
-		Rules: []sdk.CheckRule{
-			Rule(),
-		},
+		Rules: Rules(),
 		Interval: &sdk.CheckIntervalSpec{
-			Min:     1 * time.Hour,
-			Max:     7 * 24 * time.Hour,
-			Default: 24 * time.Hour,
+			Min:     12 * time.Hour,
+			Max:     30 * 24 * time.Hour,
+			Default: 7 * 24 * time.Hour,
 		},
 	}
 }
