@@ -12,4 +12,6 @@ FROM scratch
 COPY --from=builder /checker-zonemaster /checker-zonemaster
 USER 65534:65534
 EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD ["/checker-zonemaster", "-healthcheck"]
 ENTRYPOINT ["/checker-zonemaster"]
