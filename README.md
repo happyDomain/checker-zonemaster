@@ -78,29 +78,22 @@ it directly to the public internet.
 | User      | `language`         | Result language (`en`, `fr`, `de`, …)                |
 | Admin     | `zonemasterAPIURL` | Zonemaster JSON-RPC endpoint (default: official API) |
 
-## Protocol
+## Rules
 
-### POST /collect
+Results from Zonemaster are split per test module into one happyDomain rule
+each. Every rule emits a `<rule>.summary` state with aggregate counts, plus
+one `<rule>.<level>` state per WARNING-or-worse Zonemaster message (so
+downstream consumers can match on stable codes).
 
-Request:
-```json
-{
-  "key": "zonemaster",
-  "options": {
-    "domainName": "example.com",
-    "zonemasterAPIURL": "https://zonemaster.net/api",
-    "language": "en",
-    "profile": "default"
-  }
-}
-```
-
-The collect call is long-running: it starts a Zonemaster test, polls until
-completion, and returns the full result tree as the observation payload.
+| Rule                      | Modules        | Description                                                                       |
+|---------------------------|----------------|-----------------------------------------------------------------------------------|
+| `zonemaster.dnssec`       | `dnssec`       | DNSSEC tests (signatures, NSEC/NSEC3, DS/DNSKEY coherence).                       |
+| `zonemaster.delegation`   | `delegation`   | Delegation tests (parent/child NS agreement, glue, referrals).                    |
+| `zonemaster.consistency`  | `consistency`  | Consistency tests (SOA serial, NS set, zone content across servers).              |
+| `zonemaster.connectivity` | `connectivity` | Connectivity tests (UDP/TCP reachability of authoritative servers, AS diversity). |
+| `zonemaster.nameserver`   | `nameserver`   | Nameserver tests (server behaviour, EDNS, unknown RR handling).                   |
+| `zonemaster.syntax`       | `syntax`       | Syntax tests (domain name syntax, hostname legality).                             |
 
 ## License
 
-This project is licensed under the **MIT License** (see `LICENSE`). The
-third-party Apache-2.0 attributions for `checker-sdk-go` are recorded in
-`NOTICE` and must accompany any binary or source redistribution of this
-project.
+MIT (see `LICENSE`). Third-party attributions in `NOTICE`.
