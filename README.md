@@ -80,19 +80,18 @@ it directly to the public internet.
 
 ## Rules
 
-Results from Zonemaster are split per test module into one happyDomain rule
-each. Every rule emits a `<rule>.summary` state with aggregate counts, plus
-one `<rule>.<level>` state per WARNING-or-worse Zonemaster message (so
-downstream consumers can match on stable codes).
+Each rule wraps one Zonemaster test module and emits a `<rule>.summary`
+state plus one `<rule>.<level>` state per WARNING-or-worse Zonemaster
+message, so downstream consumers can match on stable codes.
 
-| Rule                      | Modules        | Description                                                                       |
-|---------------------------|----------------|-----------------------------------------------------------------------------------|
-| `zonemaster.dnssec`       | `dnssec`       | DNSSEC tests (signatures, NSEC/NSEC3, DS/DNSKEY coherence).                       |
-| `zonemaster.delegation`   | `delegation`   | Delegation tests (parent/child NS agreement, glue, referrals).                    |
-| `zonemaster.consistency`  | `consistency`  | Consistency tests (SOA serial, NS set, zone content across servers).              |
-| `zonemaster.connectivity` | `connectivity` | Connectivity tests (UDP/TCP reachability of authoritative servers, AS diversity). |
-| `zonemaster.nameserver`   | `nameserver`   | Nameserver tests (server behaviour, EDNS, unknown RR handling).                   |
-| `zonemaster.syntax`       | `syntax`       | Syntax tests (domain name syntax, hostname legality).                             |
+| Code                      | Description                                                                       | Severity |
+|---------------------------|-----------------------------------------------------------------------------------|----------|
+| `zonemaster.dnssec`       | DNSSEC tests (signatures, NSEC/NSEC3, DS/DNSKEY coherence).                       | CRITICAL |
+| `zonemaster.delegation`   | Delegation tests (parent/child NS agreement, glue, referrals).                    | CRITICAL |
+| `zonemaster.consistency`  | Consistency tests (SOA serial, NS set, zone content across servers).              | CRITICAL |
+| `zonemaster.connectivity` | Connectivity tests (UDP/TCP reachability of authoritative servers, AS diversity). | CRITICAL |
+| `zonemaster.nameserver`   | Nameserver tests (server behaviour, EDNS, unknown RR handling).                   | CRITICAL |
+| `zonemaster.syntax`       | Syntax tests (domain name syntax, hostname legality).                             | CRITICAL |
 
 ## License
 
